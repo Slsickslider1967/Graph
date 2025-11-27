@@ -1,0 +1,14 @@
+c:\Users\georgio\Documents\Graph\Graph\bin\Debug\net9.0\Graph.exe
+c:\Users\georgio\Documents\Graph\Graph\bin\Debug\net9.0\Graph.deps.json
+c:\Users\georgio\Documents\Graph\Graph\bin\Debug\net9.0\Graph.runtimeconfig.json
+c:\Users\georgio\Documents\Graph\Graph\bin\Debug\net9.0\Graph.dll
+c:\Users\georgio\Documents\Graph\Graph\bin\Debug\net9.0\Graph.pdb
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.AssemblyInfoInputs.cache
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.AssemblyInfo.cs
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.csproj.CoreCompileInputs.cache
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.dll
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\refint\Graph.dll
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.pdb
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\Graph.genruntimeconfig.cache
+c:\Users\georgio\Documents\Graph\Graph\obj\Debug\net9.0\ref\Graph.dll
