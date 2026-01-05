@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 
 class MainProgram
@@ -11,14 +12,14 @@ class MainProgram
         while (isRunning)
         {
             Console.WriteLine("--------------------------");
-            Console.WriteLine("1 - Add values \n2 - Add edges \n3 - Display values \n4 - Search value \n5 - DFS \n6 - Preset \n7 - BFS \n8 - Exit");
+            Console.WriteLine("1 - Add values \n2 - Add edges \n3 - Display values \n4 - Search value \n5 - DFS \n6 - Preset \n7 - BFS \n8 - Shortest Path \n9 - Exit");
             Console.WriteLine("--------------------------");
             string choice = Console.ReadLine();
             switch (choice)
             {
                 case "1":
-                        Console.WriteLine("How many values do you want to add?");
-                        Console.WriteLine("--------------------------");
+                    Console.WriteLine("How many values do you want to add?");
+                    Console.WriteLine("--------------------------");
                     int numberOfValues;
                     if (int.TryParse(Console.ReadLine(), out numberOfValues))
                     {
@@ -43,18 +44,37 @@ class MainProgram
                         for (int i = 0; i < numberOfEdges; i++)
                         {
                             bool Directed = false;
+                            bool Weighted = false;
                             Console.WriteLine("Is the edge directed? (y/n):");
                             string directedInput = Console.ReadLine();
                             if (directedInput.ToLower() == "y")
                             {
                                 Directed = true;
                             }
+                            Console.WriteLine("Is the edge weighted? (y/n):");
+                            string weightedInput = Console.ReadLine();
+                            if (weightedInput.ToLower() == "y")
+                            {
+                                Weighted = true;
+                            }
                             Console.WriteLine("Enter 'from' value:");
                             string fromValue = Console.ReadLine();
                             Console.WriteLine("Enter 'to' value:");
-                            
-                            string toValue = Console.ReadLine();
-                            graph.AddEdge(fromValue, toValue, Directed);
+                            if(Weighted)
+                            {
+                                Console.WriteLine("Enter weight:");
+                                string toValueWithWeight = Console.ReadLine();
+                                var parts = toValueWithWeight.Split(',');
+                                string toValue = parts[0];
+                                int weight = int.Parse(parts[1]);
+                                // Note: Weight handling is not implemented in the Graph class
+                                graph.AddEdge(fromValue, toValue, Directed, Weighted, weight);
+                            }
+                            else
+                            {
+                                string toValue = Console.ReadLine();
+                                graph.AddEdge(fromValue, toValue, Directed);
+                            }
                         }
                     }
                     else
@@ -93,19 +113,19 @@ class MainProgram
                     graph.AddNode("K");
                     graph.AddNode("M");
 
-                    graph.AddEdge("A", "B");
-                    graph.AddEdge("A", "F");
-                    graph.AddEdge("A", "H");
-                    graph.AddEdge("B", "E");
-                    graph.AddEdge("B", "G");
-                    graph.AddEdge("B", "H");
-                    graph.AddEdge("E", "F");
-                    graph.AddEdge("E", "G");
-                    graph.AddEdge("E", "M");
-                    graph.AddEdge("G", "H");
-                    graph.AddEdge("G", "M");
-                    graph.AddEdge("H", "K");    
-                    graph.AddEdge("K", "M");
+                    graph.AddEdge("A", "B", false, true, 12);
+                    graph.AddEdge("A", "F", false, true, 5);
+                    graph.AddEdge("A", "H", false, true, 8);
+                    graph.AddEdge("B", "E", false, true, 9);
+                    graph.AddEdge("B", "G", false, true, 3);
+                    graph.AddEdge("B", "H", false, true, 9);
+                    graph.AddEdge("E", "F", false, true, 18);
+                    graph.AddEdge("E", "G", false, true, 7);
+                    graph.AddEdge("E", "M", false, true, 26);
+                    graph.AddEdge("G", "H", false, true, 4);
+                    graph.AddEdge("G", "M", false, true, 13);
+                    graph.AddEdge("H", "K", false, true, 47);
+                    graph.AddEdge("K", "M", false, true, 34);
 
                     Console.WriteLine("Preset graph created.");
                     break;
@@ -116,6 +136,13 @@ class MainProgram
                     Console.WriteLine("BFS complete.");
                     break;
                 case "8":
+                    Console.WriteLine("Enter start node for shortest path:");
+                    string spStartNode = Console.ReadLine();
+                    Console.WriteLine("Enter end node for shortest path:");
+                    string spEndNode = Console.ReadLine();
+                    graph.ShortestPath(spStartNode, spEndNode);
+                    break;
+                case "9":
                     isRunning = false;
                     break;
                 default:
@@ -132,17 +159,18 @@ class Graph<T>
     class Node
     {
         public T Value;
-        public List<Node> Neighbors;
+        public Dictionary<Node, int> Neighbors;
 
         public Node(T value)
         {
             Value = value;
-            Neighbors = new List<Node>();
+            Neighbors = new Dictionary<Node, int>();
         }
 
-        public void AddEdge(Node to)
+        public void AddEdge(Node to, int weight = 0)
         {
-            Neighbors.Add(to);
+            Neighbors.Add(to, weight);
+            
         }
     }
 
@@ -159,17 +187,21 @@ class Graph<T>
         _Nodes.Add(newNode, new List<Node>());
     }
 
-    public void AddEdge(T from, T to, bool Directed = false)
+    public void AddEdge(T from, T to, bool Directed = false, bool Weighted = false, int weight = 0)
     {
         Node fromNode = _Nodes.Keys.FirstOrDefault(n => n.Value.Equals(from));
         Node toNode = _Nodes.Keys.FirstOrDefault(n => n.Value.Equals(to));
 
-        if (fromNode != null && toNode != null )
+        if (fromNode != null && toNode != null)
         {
             fromNode.AddEdge(toNode);
             if (!Directed)
             {
                 toNode.AddEdge(fromNode);
+            }
+            if (Weighted)
+            {
+                
             }
         }
     }
@@ -186,22 +218,11 @@ class Graph<T>
             Console.WriteLine(node.Key.Value);
             foreach (var neighbor in node.Key.Neighbors)
             {
-                Console.WriteLine("  -> " + neighbor.Value);
+                Console.WriteLine("  -> " + neighbor.Key.Value);
             }
         }
     }
 
-    private void DFS(Node node, HashSet<Node> visited)
-    {
-        visited.Add(node);
-        foreach (var neighbor in node.Neighbors)
-        {
-            if (!visited.Contains(neighbor))
-            {
-                DFS(neighbor, visited);
-            }
-        }
-    }
 
     public void DFS(string StartNode, List<string> visitedValues)
     {
@@ -214,11 +235,24 @@ class Graph<T>
         }
     }
 
+
+    private void DFS(Node node, HashSet<Node> visited)
+    {
+        visited.Add(node);
+        foreach (var neighbor in node.Neighbors)
+        {
+            if (!visited.Contains(neighbor.Key))
+            {
+                DFS(neighbor.Key, visited);
+            }
+        }
+    }
+
     public void BFS(string StartNode)
     {
-        HashSet<Node> visited = new HashSet<Node>();
+        List<Node> visited = new List<Node>();
         Queue<Node> queue = new Queue<Node>();
-        Node startNode = _Nodes.Keys.FirstOrDefault(n => n.Value.Equals(StartNode));
+        Node startNode = _Nodes.FirstOrDefault(kvp => kvp.Value.Equals(StartNode)).Key;
         queue.Enqueue(startNode);
         while (queue.Count > 0)
         {
@@ -226,15 +260,75 @@ class Graph<T>
             if (!visited.Contains(current))
             {
                 visited.Add(current);
-                Console.WriteLine(current.Value);
+                Console.WriteLine("Visiting: " + current.Value.ToString());
                 foreach (var neighbor in current.Neighbors)
                 {
-                    if (!visited.Contains(neighbor) && !queue.Contains(neighbor))
+                    if (!visited.Contains(neighbor.Key) && !queue.Contains(neighbor.Key))
                     {
-                        queue.Enqueue(neighbor);
+                        queue.Enqueue(neighbor.Key);
                     }
                 }
             }
         }
     }
+
+    public void ShortestPath(string startValue, string endValue)
+    {
+        Node startNode = _Nodes.Keys.FirstOrDefault(n => n.Value.Equals(startValue));
+        Node endNode = _Nodes.Keys.FirstOrDefault(n => n.Value.Equals(endValue));
+
+        if (startNode == null || endNode == null)
+            return;
+
+        Dictionary<Node, int> distances = new Dictionary<Node, int>();
+        Dictionary<Node, Node> predecessors = new Dictionary<Node, Node>();
+        PriorityQueue<Node, int> PriorityQueue = new PriorityQueue<Node, int>();
+
+        foreach (var node in _Nodes.Keys)
+            distances[node] = int.MaxValue;
+
+        distances[startNode] = 0;
+        predecessors[startNode] = null;
+        PriorityQueue.Enqueue(startNode, 0);
+
+        while (PriorityQueue.Count > 0)
+        {
+            Node current = PriorityQueue.Dequeue();
+
+            if (current.Equals(endNode))
+                break;
+
+            foreach (var neighbor in current.Neighbors)
+            {
+                Node neighborNode = neighbor.Key;
+                int weight = neighbor.Value;
+
+                int newDist = distances[current] + weight;
+
+                if (newDist < distances[neighborNode])
+                {
+                    distances[neighborNode] = newDist;
+                    predecessors[neighborNode] = current;
+                    PriorityQueue.Enqueue(neighborNode, newDist);
+                }
+            }
+        }
+
+        if (!predecessors.ContainsKey(endNode))
+        {
+            Console.WriteLine("No path found.");
+            return;
+        }
+
+        List<T> path = new List<T>();
+        for (Node at = endNode; at != null; at = predecessors[at])
+            path.Add(at.Value);
+
+        path.Reverse();
+        Console.WriteLine(
+            $"Shortest path (cost {distances[endNode]}): " +
+            string.Join(" -> ", path)
+        );
+    }
+
 }
